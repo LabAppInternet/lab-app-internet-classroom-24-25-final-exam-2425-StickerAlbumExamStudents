@@ -1,0 +1,161 @@
+### Create a new album with 2 sections and 6 stickers
+< {%
+    request.variables.set("today", new Date().toISOString().split('T')[0]);
+%}
+POST localhost:8080/albums
+content-type: application/json
+
+{
+  "name": "Heidi in the Mountains",
+  "editor": "Pannini",
+  "begins": "{{today}}",
+  "ends": "2025-04-04",
+  "ownerId": 3,
+  "sections": [
+    {"name":  "At home",
+    "stickers":  [
+      {"name": "Heidi playing", "number": 1, "description": {"title": "Heidi","place": "At home"}},
+      {"name": "Peter counting goats", "number": 2, "description": {"title": "Peter","place": "At home"}},
+      {"name": "Grandfather doing cheese", "number": 3, "description": {"title": "Grandfather","place": "At home"}}
+    ]},
+    {"name":  "At mountains",
+      "stickers":  [
+        {"name": "Heidi running uphill", "number": 4, "description": {"title": "Heidi","place": "At mountains"}},
+        {"name": "Peter guiding goats", "number": 5, "description": {"title": "Peter","place": "At mountains"}},
+        {"name": "Grandfather looking for Heidi", "number": 6, "description": {"title": "Grandfather","place": "At mountains"}}
+      ]}
+  ]
+}
+
+### get an album
+GET localhost:8080/albums/4
+
+
+### post to create a new collection with a dto album 1, collector 1
+POST localhost:8080/collections
+content-type: application/json
+
+{
+  "albumId": 1,
+  "collectorId": 6,
+  "beginDate": "2025-01-01",
+  "endDate": "2026-12-31"
+}
+
+### post to add sticker 1 to a collection (collector 1, album 1), quantity 2
+POST localhost:8080/collectors/stickers
+content-type: application/json
+
+{
+  "collectorId": 1,
+  "albumId": 1,
+  "stickerNumber": 1,
+  "numberOfCopies": 2
+}
+
+### get a user's collections
+GET http://localhost:8080/collectors/4/collections
+
+### get a user's open collections
+GET http://localhost:8080/collectors/1/collections/open
+
+### get user collected stickers from an album (TO DO 6)
+GET http://localhost:8080/collectors/1/collections/albums/1/collectedStickers
+
+### create a new blind auction with owner 1 and 2, price 10 and 8, sticker 5, begin 2024-01-01, end 2024-12-31
+< {%
+    request.variables.set("owner", [1,2])
+    request.variables.set("price", [10,8])
+%}
+POST http://localhost:8080/collectors/blindAuctions
+content-type: application/json
+
+{
+  "ownerId": {{owner}},
+  "stickerId": 5,
+  "initialPrice": {{price}},
+  "beginDate": "2024-01-01",
+  "endDate": "2024-12-31"
+}
+
+### create an auction for sticker 5
+POST http://localhost:8080/collectors/blindAuctions
+content-type: application/json
+
+{
+  "ownerId": 1,
+  "stickerId": 5,
+  "initialPrice": 15,
+  "beginDate": "2024-12-11",
+  "endDate": "2025-12-31"
+}
+
+### get all the auctions for sticker 5
+GET http://localhost:8080/blindAuctions/stickers/5
+
+
+### bid on auction 1 with bidders 3,4,5 and amounts 12,11,12
+< {%
+    request.variables.set("bidder", [3,4,5])
+    request.variables.set("amount", [12,11,12])
+%}
+POST http://localhost:8080/blindAuctions/bids
+content-type: application/json
+
+{
+  "bidderId": {{bidder}},
+  "auctionId": 1,
+  "amount": {{amount}}
+}
+
+###
+GET http://localhost:8080/blindAuctions/1/bids
+
+
+### get the winner bid
+GET http://localhost:8080/blindAuctions/1/winnerBid
+
+
+###
+POST http://localhost:8080/collections/singleExchange
+content-type: application/json
+
+{
+  "collectorId1": 1,
+  "stickerId1": 5,
+  "collectorId2": 2,
+  "stickerId2": 6
+}
+
+###
+< {%
+    request.variables.set("collector", [4,4,4,3,3,3,3])
+    request.variables.set("sticker", [1,2,5,3,4,5,6])
+%}
+POST localhost:8080/collectors/stickers
+content-type: application/json
+
+{
+  "collectorId": {{collector}},
+  "albumId": 1,
+  "stickerNumber": {{sticker}},
+  "numberOfCopies": 2
+}
+
+###
+GET http://localhost:8080/collectors/3/collector/4/albums/1/exchangeableStickers
+
+###
+POST localhost:8080/collectors/3/collector/4/albums/1/exchangeProposals
+
+###
+PUT http://localhost:8080/collectors/4/exchangeProposals/1/status?status=accepted
+
+###
+PUT http://localhost:8080/collectors/4/exchangeProposals/1/status?status=rejected
+
+###
+GET http://localhost:8080/collectors/4/destination/exchangeProposals/status/pending
+
+###
+GET http://localhost:8080/collectors/ranking
